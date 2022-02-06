@@ -11,6 +11,9 @@ app = application.Application()
 app.start("Notepad.exe")
 
 recent_value = ''
+
+update_notepad = False
+
 while True:
     try:
         img_grab = ImageGrab.grabclipboard()
@@ -21,6 +24,7 @@ while True:
         img_grab_repr = img_grab_repr[:size_index_end]
 
         if (not img_grab is None) and (img_grab_repr != recent_value):
+            
             print('running from image')
             recent_value = img_grab_repr
 
@@ -31,14 +35,28 @@ while True:
             custom_config = r'--oem 3 --psm 6'
             result = pytesseract.image_to_string(img_grab, config=custom_config)
             
-            app['Notepad']['Edit'].set_edit_text(result)
+            update_notepad = True
+            
         text_grab = pyperclip.paste()
+        
         if (text_grab != '') and (text_grab != recent_value):
+            
             print('running from text')
             result = pyperclip.paste()
-            
             recent_value = result
+            
+            update_notepad = True
+            
+        if update_notepad == True:
+            
+            if not app['Notepad']['Edit'].exists():
+            
+                app.start("Notepad.exe")
+            
             app['Notepad']['Edit'].set_edit_text(result)
+            
+            update_notepad = False
+            
     except:
         pass
     time.sleep(0.1)
